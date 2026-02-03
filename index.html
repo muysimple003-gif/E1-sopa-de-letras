@@ -144,19 +144,6 @@
             border-color: #003953;
         }
 
-        .line {
-            position: absolute;
-            background: #003953;
-            height: 80%;
-            width: 80%;
-            top: 10%;
-            left: 10%;
-            z-index: 1;
-            transform-origin: center;
-            border-radius: 2px;
-            opacity: 0.7;
-        }
-
         .buttons {
             display: flex;
             gap: 15px;
@@ -193,6 +180,11 @@
             background: #EEDF0E;
             color: #003953;
             border: 2px solid #003953;
+            display: none; /* Oculto inicialmente */
+        }
+
+        .btn-next.visible {
+            display: inline-block; /* Visible cuando se completa */
         }
 
         .btn-next:hover {
@@ -351,6 +343,7 @@
 
         const gridSize = 15;
         const grid = document.getElementById('grid');
+        const nextBtn = document.getElementById('nextBtn');
         let foundWords = [];
         let wordPositions = [];
         let firstCell = null;
@@ -561,11 +554,14 @@
             }
         }
 
-        // Mostrar contraseña
+        // Mostrar contraseña y habilitar botón siguiente
         function showPassword() {
             const passwordContainer = document.getElementById('passwordContainer');
             passwordContainer.style.display = 'block';
             passwordContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Mostrar botón siguiente después de completar
+            nextBtn.classList.add('visible');
         }
 
         // Inicializar el juego
@@ -574,9 +570,8 @@
             renderGrid(gridData);
             
             document.getElementById('showSolution').addEventListener('click', showSolution);
-            document.getElementById('nextBtn').addEventListener('click', () => {
-                alert('¡Aquí colocarás tu enlace personalizado!');
-                // window.location.href = 'TU_ENLACE_AQUI';
+            nextBtn.addEventListener('click', () => {
+                window.location.href = 'https://muysimple003-gif.github.io/E2/';
             });
         }
 
