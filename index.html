@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sopa de Letras - Valores Democráticos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            max-width: 900px;
+            width: 100%;
+            text-align: center;
+        }
+
+        h1 {
+            color: #003953;
+            text-align: center;
+            margin-bottom: 25px;
+            font-weight: 700;
+            font-size: 2.5em;
+        }
+
+        .instructions {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border-left: 4px solid #003953;
+        }
+
+        .instructions p {
+            color: #333;
+            font-size: 1.1em;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+
+        .word-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 12px;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #fafafa;
+            border-radius: 12px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .word-item {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            border: 2px solid #003953;
+            font-weight: 600;
+            color: #003953;
+            text-align: center;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            cursor: default;
+        }
+
+        .word-item.found {
+            background: #EEDF0E;
+            color: #003953;
+            border-color: #003953;
+            transform: scale(1.02);
+            font-weight: 700;
+        }
+
+        .sopa-container {
+            background: #fafafa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(15, 36px);
+            grid-template-rows: repeat(15, 36px);
+            gap: 2px;
+            margin: 0 auto;
+            max-width: 540px;
+        }
+
+        .cell {
+            width: 36px;
+            height: 36px;
+            background: white;
+            border: 1px solid #ddd;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #333;
+            cursor: pointer;
+            user-select: none;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .cell:hover:not(.found) {
+            background: #f0f0f0;
+            transform: scale(1.05);
+        }
+
+        .cell.selected {
+            background: #003953;
+            color: white;
+            border-color: #003953;
+        }
+
+        .cell.found {
+            background: #EEDF0E;
+            color: #003953;
+            font-weight: 700;
+            border-color: #003953;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 14px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-result {
+            background: #003953;
+            color: white;
+        }
+
+        .btn-result:hover {
+            background: #002a40;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 57, 83, 0.3);
+        }
+
+        .btn-next {
+            background: #EEDF0E;
+            color: #003953;
+            border: 2px solid #003953;
+        }
+
+        .btn-next:hover {
+            background: #e5d500;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(238, 223, 14, 0.3);
+        }
+
+        .password-container {
+            background: #EEDF0E;
+            color: #003953;
+            padding: 35px;
+            border-radius: 20px;
+            text-align: center;
+            margin-top: 30px;
+            display: none;
+            animation: fadeIn 0.6s ease-out;
+            border: 3px solid #003953;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .password-container h2 {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+
+        .password-container p {
+            font-size: 1.3em;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .password {
+            font-size: 3.5em;
+            font-weight: 800;
+            letter-spacing: 6px;
+            margin: 15px 0;
+            background: white;
+            display: inline-block;
+            padding: 12px 30px;
+            border-radius: 15px;
+            border: 3px solid #003953;
+        }
+
+        .message {
+            text-align: center;
+            margin-top: 20px;
+            min-height: 30px;
+            font-weight: 600;
+            font-size: 1.1em;
+            color: #003953;
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        @media (max-width: 768px) {
+            .grid {
+                grid-template-columns: repeat(15, 30px);
+                grid-template-rows: repeat(15, 30px);
+            }
+            
+            .cell {
+                width: 30px;
+                height: 30px;
+                font-size: 0.9em;
+            }
+            
+            .container {
+                padding: 25px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>✨ Sopa de Letras Democrática ✨</h1>
+        
+        <div class="instructions">
+            <p>Encuentra las 10 palabras relacionadas con elecciones democráticas. Selecciona las letras en orden para formar cada palabra.</p>
+        </div>
+
+        <div class="word-list" id="wordList">
+            <div class="word-item" data-word="elecciones">Elecciones</div>
+            <div class="word-item" data-word="libres">Libres</div>
+            <div class="word-item" data-word="transparentes">Transparentes</div>
+            <div class="word-item" data-word="seguras">Seguras</div>
+            <div class="word-item" data-word="oportunas">Oportunas</div>
+            <div class="word-item" data-word="conscientes">Conscientes</div>
+            <div class="word-item" data-word="democracia">Democracia</div>
+            <div class="word-item" data-word="respeto">Respeto</div>
+            <div class="word-item" data-word="resultados">Resultados</div>
+            <div class="word-item" data-word="legitimos">Legítimos</div>
+        </div>
+
+        <div class="sopa-container">
+            <div class="grid" id="grid"></div>
+        </div>
+
+        <div class="message" id="message"></div>
+
+        <div class="buttons">
+            <button class="btn btn-result" id="showSolution">Ver Resultado</button>
+            <button class="btn btn-next" id="nextBtn">Siguiente</button>
+        </div>
+
+        <div class="password-container" id="passwordContainer">
+            <h2>🎉 ¡Felicidades! 🎉</h2>
+            <p>Tu contraseña es:</p>
+            <div class="password">paz</div>
+            <p>¡Excelente trabajo!</p>
+        </div>
+    </div>
+
+    <script>
+        // Palabras para la sopa de letras
+        const words = [
+            { word: "elecciones", display: "Elecciones" },
+            { word: "libres", display: "Libres" },
+            { word: "transparentes", display: "Transparentes" },
+            { word: "seguras", display: "Seguras" },
+            { word: "oportunas", display: "Oportunas" },
+            { word: "conscientes", display: "Conscientes" },
+            { word: "democracia", display: "Democracia" },
+            { word: "respeto", display: "Respeto" },
+            { word: "resultados", display: "Resultados" },
+            { word: "legitimos", display: "Legítimos" }
+        ];
+
+        const gridSize = 15;
+        const grid = document.getElementById('grid');
+        let selectedCells = [];
+        let foundWords = [];
+        let wordPositions = [];
+
+        // Crear cuadrícula vacía
+        function createEmptyGrid() {
+            const cells = [];
+            for (let i = 0; i < gridSize * gridSize; i++) {
+                cells.push('');
+            }
+            return cells;
+        }
+
+        // Verificar si una palabra cabe en una posición
+        function canPlaceWord(grid, word, x, y, dx, dy) {
+            for (let i = 0; i < word.length; i++) {
+                const nx = x + i * dx;
+                const ny = y + i * dy;
+                
+                if (nx < 0 || nx >= gridSize || ny < 0 || ny >= gridSize) {
+                    return false;
+                }
+                
+                const index = ny * gridSize + nx;
+                if (grid[index] !== '' && grid[index] !== word[i].toUpperCase()) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        // Colocar palabra en la cuadrícula
+        function placeWord(grid, word, x, y, dx, dy) {
+            const positions = [];
+            for (let i = 0; i < word.length; i++) {
+                const nx = x + i * dx;
+                const ny = y + i * dy;
+                const index = ny * gridSize + nx;
+                grid[index] = word[i].toUpperCase();
+                positions.push(index);
+            }
+            return positions;
+        }
+
+        // Generar sopa de letras
+        function generateWordSearch() {
+            let gridData = createEmptyGrid();
+            wordPositions = [];
+
+            // Direcciones: horizontal, vertical y diagonales
+            const directions = [
+                [1, 0],   // derecha
+                [0, 1],   // abajo
+                [1, 1],   // diagonal abajo-derecha
+                [1, -1],  // diagonal arriba-derecha
+                [-1, 0],  // izquierda
+                [0, -1],  // arriba
+                [-1, 1],  // diagonal abajo-izquierda
+                [-1, -1]  // diagonal arriba-izquierda
+            ];
+
+            // Colocar cada palabra
+            for (const item of words) {
+                const word = item.word.toLowerCase();
+                let placed = false;
+                
+                // Intentar colocar la palabra
+                for (let attempt = 0; attempt < 200 && !placed; attempt++) {
+                    const dir = directions[Math.floor(Math.random() * directions.length)];
+                    const dx = dir[0];
+                    const dy = dir[1];
+                    
+                    const startX = Math.floor(Math.random() * gridSize);
+                    const startY = Math.floor(Math.random() * gridSize);
+                    
+                    if (canPlaceWord(gridData, word, startX, startY, dx, dy)) {
+                        const positions = placeWord(gridData, word, startX, startY, dx, dy);
+                        wordPositions.push({
+                            word: item.word,
+                            positions: positions
+                        });
+                        placed = true;
+                    }
+                }
+                
+                if (!placed) {
+                    console.warn(`No se pudo colocar: ${word}`);
+                }
+            }
+
+            // Rellenar celdas vacías con letras aleatorias
+            for (let i = 0; i < gridData.length; i++) {
+                if (gridData[i] === '') {
+                    gridData[i] = String.fromCharCode(65 + Math.floor(Math.random() * 26));
+                }
+            }
+
+            return gridData;
+        }
+
+        // Renderizar la cuadrícula
+        function renderGrid(gridData) {
+            grid.innerHTML = '';
+            
+            for (let i = 0; i < gridData.length; i++) {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                cell.textContent = gridData[i];
+                cell.dataset.index = i;
+                cell.addEventListener('click', () => handleCellClick(i));
+                grid.appendChild(cell);
+            }
+        }
+
+        // Manejar clic en celda
+        function handleCellClick(index) {
+            const cellElement = document.querySelector(`.cell[data-index="${index}"]`);
+            
+            if (cellElement.classList.contains('found')) return;
+            
+            const isSelected = cellElement.classList.contains('selected');
+            
+            if (isSelected) {
+                cellElement.classList.remove('selected');
+                selectedCells = selectedCells.filter(i => i !== index);
+            } else {
+                if (selectedCells.length === 0 || isAdjacent(index, selectedCells[selectedCells.length - 1])) {
+                    cellElement.classList.add('selected');
+                    selectedCells.push(index);
+                } else {
+                    clearSelection();
+                    cellElement.classList.add('selected');
+                    selectedCells.push(index);
+                }
+            }
+            
+            checkCompletedWord();
+        }
+
+        // Verificar si dos celdas son adyacentes
+        function isAdjacent(index1, index2) {
+            const x1 = index1 % gridSize;
+            const y1 = Math.floor(index1 / gridSize);
+            const x2 = index2 % gridSize;
+            const y2 = Math.floor(index2 / gridSize);
+            
+            return Math.abs(x1 - x2) <= 1 && Math.abs(y1 - y2) <= 1;
+        }
+
+        // Limpiar selección
+        function clearSelection() {
+            selectedCells.forEach(index => {
+                const cell = document.querySelector(`.cell[data-index="${index}"]`);
+                if (cell) cell.classList.remove('selected');
+            });
+            selectedCells = [];
+        }
+
+        // Verificar palabra completada
+        function checkCompletedWord() {
+            if (selectedCells.length < 3) return;
+            
+            for (const wp of wordPositions) {
+                if (arraysMatchIgnoreOrder(selectedCells, wp.positions)) {
+                    markWordAsFound(wp.word, wp.positions);
+                    clearSelection();
+                    return;
+                }
+            }
+        }
+
+        // Comparar arrays ignorando orden
+        function arraysMatchIgnoreOrder(arr1, arr2) {
+            if (arr1.length !== arr2.length) return false;
+            const sorted1 = [...arr1].sort((a, b) => a - b);
+            const sorted2 = [...arr2].sort((a, b) => a - b);
+            return sorted1.every((value, index) => value === sorted2[index]);
+        }
+
+        // Marcar palabra como encontrada
+        function markWordAsFound(word, positions) {
+            if (foundWords.includes(word)) return;
+            
+            positions.forEach(index => {
+                const cell = document.querySelector(`.cell[data-index="${index}"]`);
+                cell.classList.add('found');
+            });
+            
+            const wordElement = document.querySelector(`.word-item[data-word="${word}"]`);
+            if (wordElement) {
+                wordElement.classList.add('found');
+            }
+            
+            foundWords.push(word);
+            showMessage(`¡Encontraste: ${word.charAt(0).toUpperCase() + word.slice(1)}!`);
+            
+            if (foundWords.length === words.length) {
+                setTimeout(showPassword, 600);
+            }
+        }
+
+        // Mostrar mensaje
+        function showMessage(text) {
+            const messageEl = document.getElementById('message');
+            messageEl.textContent = text;
+            messageEl.style.backgroundColor = '#f8f9fa';
+            setTimeout(() => {
+                messageEl.textContent = '';
+                messageEl.style.backgroundColor = 'transparent';
+            }, 2500);
+        }
+
+        // Mostrar solución
+        function showSolution() {
+            wordPositions.forEach(wp => {
+                if (!foundWords.includes(wp.word)) {
+                    markWordAsFound(wp.word, wp.positions);
+                }
+            });
+        }
+
+        // Mostrar contraseña
+        function showPassword() {
+            const passwordContainer = document.getElementById('passwordContainer');
+            passwordContainer.style.display = 'block';
+            passwordContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        // Inicializar el juego
+        function initGame() {
+            const gridData = generateWordSearch();
+            renderGrid(gridData);
+            
+            document.getElementById('showSolution').addEventListener('click', showSolution);
+            document.getElementById('nextBtn').addEventListener('click', () => {
+                alert('¡Aquí colocarás tu enlace personalizado!');
+                // window.location.href = 'TU_ENLACE_AQUI';
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
