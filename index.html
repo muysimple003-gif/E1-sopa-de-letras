@@ -258,6 +258,13 @@
             border-radius: 6px;
         }
 
+        /* 🔑 AJUSTE CLAVE: Limitar tamaño en pantallas grandes */
+        @media (min-width: 768px) {
+            .grid {
+                max-width: 600px;
+            }
+        }
+
         @media (max-width: 480px) {
             .header {
                 flex-direction: column;
