@@ -421,17 +421,15 @@
             return positions;
         }
 
-        // Generar sopa de letras
+        // Generar sopa de letras - SOLO HORIZONTAL Y VERTICAL
         function generateWordSearch() {
             let gridData = createEmptyGrid();
             wordPositions = [];
 
-            // Direcciones
+            // Direcciones: SOLO horizontal y vertical (sin diagonales)
             const directions = [
-                [1, 0],   // derecha
-                [0, 1],   // abajo
-                [1, 1],   // diagonal abajo-derecha
-                [1, -1],  // diagonal arriba-derecha
+                [1, 0],   // derecha (horizontal)
+                [0, 1],   // abajo (vertical)
             ];
 
             // Colocar cada palabra
@@ -439,13 +437,21 @@
                 const word = item.word.toLowerCase();
                 let placed = false;
                 
-                for (let attempt = 0; attempt < 200 && !placed; attempt++) {
+                // Aumentar intentos para asegurar colocación
+                for (let attempt = 0; attempt < 500 && !placed; attempt++) {
                     const dir = directions[Math.floor(Math.random() * directions.length)];
                     const dx = dir[0];
                     const dy = dir[1];
                     
-                    const startX = Math.floor(Math.random() * (gridSize - word.length + 1));
-                    const startY = Math.floor(Math.random() * (gridSize - word.length + 1));
+                    // Calcular rango de inicio según dirección
+                    let startX, startY;
+                    if (dx === 1 && dy === 0) { // horizontal
+                        startX = Math.floor(Math.random() * (gridSize - word.length + 1));
+                        startY = Math.floor(Math.random() * gridSize);
+                    } else { // vertical
+                        startX = Math.floor(Math.random() * gridSize);
+                        startY = Math.floor(Math.random() * (gridSize - word.length + 1));
+                    }
                     
                     if (canPlaceWord(gridData, word, startX, startY, dx, dy)) {
                         const positions = placeWord(gridData, word, startX, startY, dx, dy);
@@ -527,6 +533,7 @@
                     // Marcar todas las celdas de la palabra
                     wp.positions.forEach(pos => {
                         const cell = document.querySelector(`.cell[data-index="${pos}"]`);
+                        cell.classList.remove('selected-start', 'selected-end');
                         cell.classList.add('found');
                     });
                     
@@ -564,26 +571,41 @@
             }, 2000);
         }
 
-        // Mostrar solución
+        // Mostrar solución - CORREGIDO
         function showSolution() {
+            // Limpiar cualquier selección activa
+            document.querySelectorAll('.cell.selected-start, .cell.selected-end').forEach(cell => {
+                cell.classList.remove('selected-start', 'selected-end');
+            });
+            
+            // Marcar todas las palabras restantes
             wordPositions.forEach(wp => {
                 if (!foundWords.includes(wp.word)) {
+                    // Marcar todas las celdas de la palabra
                     wp.positions.forEach(pos => {
                         const cell = document.querySelector(`.cell[data-index="${pos}"]`);
                         cell.classList.add('found');
                     });
                     
+                    // Marcar en lista
                     const wordElement = document.querySelector(`.word-item[data-word="${wp.word}"]`);
                     if (wordElement) {
                         wordElement.classList.add('found');
                     }
                     
-                    foundWords.push(wp.word);
+                    // Agregar a palabras encontradas
+                    if (!foundWords.includes(wp.word)) {
+                        foundWords.push(wp.word);
+                    }
                 }
             });
             
+            // Mostrar mensaje
+            showMessage('✅ ¡Todas las palabras han sido reveladas!');
+            
+            // Verificar si se completó
             if (foundWords.length === words.length) {
-                showPassword();
+                setTimeout(showPassword, 500);
             }
         }
 
